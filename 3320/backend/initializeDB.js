@@ -1,11 +1,7 @@
-const client = require('./connection');
-
-const dbName = "libraryDB";
+const { db } = require('./connection');
 const collectionName = "books";
 
 async function initializeDB() {
-  await client.connect();
-  const db = client.db(dbName);
   const collection = db.collection(collectionName);
 
   const sampleBooks = [
