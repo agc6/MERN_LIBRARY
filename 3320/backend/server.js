@@ -1,12 +1,14 @@
 const express = require('express');
 const { db } = require('./connection');
 const initializeDB = require('./initializeDB');
+const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
 
 // MIDDLEWARE
 app.use(express.json()); //Built-in middleware to parse JSON requests
+app.use(cors()); //Allow React app to communicate with Express
 
 // ROUTES
 
