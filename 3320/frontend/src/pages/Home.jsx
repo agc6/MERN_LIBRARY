@@ -1,5 +1,5 @@
 import React from "react";
-import BookList from "../component/BookList";
+import BookList from "../components/BookList";
 
 //Homepage displaying available and checked-out books
 const Home = () => {
