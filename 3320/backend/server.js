@@ -1,59 +1,75 @@
+
 const express = require('express');
-const { db } = require('./connection');
-const initializeDB = require('./initializeDB');
 const cors = require('cors');
+const { connectDB } = require('./connection');
+const initializeDB = require('./initializeDB');
 
 const app = express();
 const PORT = 3000;
 
-// MIDDLEWARE
-app.use(express.json()); //Built-in middleware to parse JSON requests
-app.use(cors()); //Allow React app to communicate with Express
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-// ROUTES
-
-//List available books
+// Routes
 app.get('/books/available', async (req, res) => {
-  const books = await db.collection("books").find({ status: "available" }).toArray();
-  res.json(books);
+  try {
+    const db = await connectDB();
+    const books = await db.collection("books").find({ status: "available" }).toArray();
+    res.json(books);
+  } catch (err) {
+    console.error("Error fetching available books:", err);
+    res.status(500).send("Internal Server Error");
+  }
 });
-
-//List checked-out books
 app.get('/books/checked-out', async (req, res) => {
-  const books = await db.collection("books").find({ status: "checked out" }).toArray();
-  res.json(books);
+  try {
+    const db = await connectDB();
+    const checkedOutBooks = await db.collection("books").find({ status: "checked out" }).toArray();
+
+    res.status(200).json(checkedOutBooks);
+  } catch (err) {
+    console.error("Error fetching checked-out books:", err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-//Check out a book
-app.post('/books/check-out', async (req, res) => {
-  const { isbn, checkedOutBy, dueDate } = req.body;
-  if (!isbn || !checkedOutBy || !dueDate) return res.sendStatus(400);
+app.post('/books/checkout', async (req, res) => {
+  try {
+    const db = await connectDB();
+    const { bookId, checkedOutBy, dueDate } = req.body;
 
-  const result = await db.collection("books").findOneAndUpdate(
-    { isbn, status: "available" },
-    { $set: { status: "checked out", checkedOutBy, dueDate } },
-    { returnDocument: "after" }
-  );
+    // Update the book status to 'checked out' and set checkedOutBy and dueDate
+    const result = await db.collection("books").updateOne(
+      { _id: new ObjectId(bookId) },
+      {
+        $set: {
+          status: "checked out",
+          checkedOutBy,
+          dueDate,
+        }
+      }
+    );
 
-  result.value ? res.json(result.value) : res.sendStatus(404);
+    if (result.modifiedCount === 1) {
+      // Fetch updated list of checked-out books after the checkout operation
+      const updatedBooks = await db.collection("books").find({ status: "checked out" }).toArray();
+      res.status(200).json({ success: true, books: updatedBooks });
+    } else {
+      res.status(404).json({ success: false, message: "Book not found or already checked out" });
+    }
+  } catch (err) {
+    console.error("Error checking out book:", err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-//Check in a book
-app.post('/books/check-in', async (req, res) => {
-  const { isbn } = req.body;
-  if (!isbn) return res.sendStatus(400);
 
-  const result = await db.collection("books").findOneAndUpdate(
-    { isbn, status: "checked out" },
-    { $set: { status: "available", checkedOutBy: null, dueDate: null } },
-    { returnDocument: "after" }
-  );
-
-  result.value ? res.json(result.value) : res.sendStatus(404);
-});
-
-//Start server and initialize DB
 app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  await initializeDB();
+  try {
+    await initializeDB(); // Initialize the database with sample data
+    console.log(`Server is running on http://localhost:${PORT}`);
+  } catch (err) {
+    console.error("Failed to start server:", err);
+  }
 });

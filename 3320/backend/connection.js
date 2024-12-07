@@ -1,8 +1,6 @@
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const { MongoClient, ServerApiVersion} = require('mongodb');
 const uri = "mongodb+srv://cavila14:cavila14@cluster0.nx7zj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -11,20 +9,20 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+let db;
+
+const connectDB = async () => {
+  if (!db) {
+    try {
+      await client.connect();
+      console.log("Connected to MongoDB");
+      db = client.db("libraryDB"); // Replace "libraryDB" with your actual database name
+    } catch (err) {
+      console.error("Failed to connect to MongoDB:", err);
+      throw err;
+    }
   }
-}
-run();
+  return db;
+};
 
-const db = client.db("libraryDB");
-
-module.exports = { db };
+module.exports = { connectDB };
