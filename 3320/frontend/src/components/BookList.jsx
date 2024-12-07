@@ -5,7 +5,7 @@ const BookList = ({filter}) => {
 
   //useEffect to fetch data from the backend when the filter changes
   useEffect(() => {
-    fetch ('/api/books?status=${filter}')
+    fetch ('/books/${filter}')
     .then ((response) => {
       if (!response.ok) {
         throw new Error('HTTP error! status: ${response.status}');
@@ -29,7 +29,7 @@ const BookList = ({filter}) => {
       <li key={book.isbn}>
         <strong>{book.title}</strong> by {book.author}
         {filter === 'checked out' && (
-        <span> (Checked out by {book.checkedOutBy}, Due:{' '} {new Date(book.dueDate).toLocaleDateString()})</span>
+        <span> (Checked out by {book.checkedOutBy}, Due: {new Date(book.dueDate).toLocaleDateString()})</span>
         )}
       </li>
       ))}
