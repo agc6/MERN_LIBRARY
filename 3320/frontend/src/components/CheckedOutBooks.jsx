@@ -31,6 +31,23 @@ const CheckedOutBooks = () => {
     return <p>No checked-out books.</p>;
   }
 
+  const handleCheckIn = async (bookId) => {
+    try {
+      const response = await fetch('http://localhost:3000/books/checkin/${bookId}', {
+        method: "POST",
+      });
+
+      if (!response.ok){
+        throw new Error("Failed to check-in the book.");
+      }
+
+      //Successful check-in, reload the checked-out book list
+      window.location.reload();
+    }catch(error) {
+      console.error("Error checking in book:", error);
+    }
+  };
+
   return (
     <div>
       <h1>Checked-Out Books</h1>
@@ -49,23 +66,6 @@ const CheckedOutBooks = () => {
       </ul>
     </div>
   );
-};
-
-const handleCheckIn = async (bookId) => {
-  try {
-    const response = await fetch(`http://localhost:3000/books/checkin/${bookId}`, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to check in the book');
-    }
-
-    // On successful check-in, reload the checked-out books list
-    window.location.reload();
-  } catch (error) {
-    console.error("Error checking in book:", error);
-  }
 };
 
 export default CheckedOutBooks;
