@@ -1,8 +1,8 @@
-
 const express = require('express');
 const cors = require('cors');
 const { connectDB } = require('./connection');
 const initializeDB = require('./initializeDB');
+const { objectId } = require('mongodb');
 
 const app = express();
 const PORT = 3000;
@@ -26,7 +26,6 @@ app.get('/books/checked-out', async (req, res) => {
   try {
     const db = await connectDB();
     const checkedOutBooks = await db.collection("books").find({ status: "checked out" }).toArray();
-
     res.status(200).json(checkedOutBooks);
   } catch (err) {
     console.error("Error fetching checked-out books:", err);
@@ -47,14 +46,12 @@ app.post('/books/checkout', async (req, res) => {
           status: "checked out",
           checkedOutBy,
           dueDate,
-        }
+        },
       }
     );
 
-    if (result.modifiedCount === 1) {
-      // Fetch updated list of checked-out books after the checkout operation
-      const updatedBooks = await db.collection("books").find({ status: "checked out" }).toArray();
-      res.status(200).json({ success: true, books: updatedBooks });
+   if (result.modifiedCount === 1) {
+      res.status(200).json({ success: true, message: "Book checked out successfully." });
     } else {
       res.status(404).json({ success: false, message: "Book not found or already checked out" });
     }
@@ -64,6 +61,32 @@ app.post('/books/checkout', async (req, res) => {
   }
 });
 
+app.post('books/checkin/:bookId', async (req, res) => {
+  try{
+    const db = await connectDB();
+    const bookId = req.params.bookId;
+
+    const result = await db.collection("books").updateOne(
+      { _id: new ObjectId(bookId) },
+      {
+        $set: {
+          status: "available",
+          checkedOutBy: null,
+          dueDate: null,
+        },
+      }
+    );
+
+  if(result.modifiedCount == 1) {
+      res.status(200).json({ success: true, message: "Book checked in succesfully."});
+    } else{
+      res.status(404).json({ success: false, message: "Book not found or not checked out successfully."});
+      }
+  }catch(err) {
+    console.error("Error checking in book:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.listen(PORT, async () => {
   try {
