@@ -1,0 +1,54 @@
+/* General CSS */
+
+   h1 {
+    color: #b27474;
+    font-size: 24px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+  }
+  
+ ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+ li {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    margin-left: 20px;
+    max-width: 70%;
+  }
+  
+  button {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: white;
+    background-color: #f69c9c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    margin-left: 5px;
+  }
+  
+  button:hover {
+    background-color: #f8afaf;
+  }
+  
+
+  input {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: rgb(0, 0, 0);
+    background-color: #ffffff;
+    border-color: #f8aaaa;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    margin-left: 5px;
+  }
