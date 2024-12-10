@@ -20,22 +20,23 @@ const CheckoutBook = ({ bookId }) => {
         throw new Error('Failed to checkout book');
       }
 
-      const { success } = await response.json();
+      const data = await response.json();
 
-      if (success) {
-        // On successful checkout, redirect to checked-out books page
-        navigate("/checked-out-books");
-      } else {
-        alert("Error checking out book.");
+      if (data.success) {
+       alert('Book checked-out successfully.');
+        navigate("/checked-out");
+      }else{
+        alert(data.message);
       }
-    } catch (error) {
-      console.error("Checkout Error:", error);
+    } catch(error){
+      console.error("Error during checkout:", error);
+      alert("An error occurred while checking out the book.");
     }
   };
 
   return (
     <div>
-      <h2>Check Out Book</h2>
+      <h2>Check-Out Book</h2>
       <input
         type="text"
         placeholder="Your Name"
